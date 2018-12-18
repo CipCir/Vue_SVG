@@ -80,12 +80,12 @@ export default {
 
     this.pinky1 = this.canvas
       .circle(0)
-      .move(207, 222)
+      .move(210, 242)
       .fill(radial2)
       .after(this.mouth);
     this.pinky2 = this.canvas
       .circle(0)
-      .move(400, 278)
+      .move(420, 298)
       .fill(radial2)
       .after(this.mouth);
 
@@ -176,7 +176,7 @@ export default {
             "m363.7545,288.30087c-1.01888,-0.66135 -9.11895,24.6682 -0.35661,25.39568c8.76234,0.72748 1.37549,-24.73434 0.35661,-25.39568z";
           break;
         case 5:
-          d1 = "m202,243q61.29033,111.19231 190,49.18121";
+          d1 = "m209,265q61.29033,111.19231 190,49.18121";
           w1 = "23";
           re = 0;
           cx1 = 265;

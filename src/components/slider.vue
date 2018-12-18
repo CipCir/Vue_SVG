@@ -30,12 +30,23 @@ export default {
       slide_val: 0,
       canvas: "",
       circle1: "",
+      eye1: "",
+      eye2: "",
+      mouth: "",
       radial: ""
     };
   },
   mounted() {
     this.canvas = SVG("drawing").viewbox(0, 0, 500, 500);
     this.circle1 = this.canvas.circle(500).move(0, 0);
+    this.eye1 = this.canvas.circle(70).move(110, 200);
+    this.eye2 = this.canvas.circle(70).move(320, 200);
+    this.mouth = this.canvas.path("m180,360q67,48 143,0").attr({
+      fill: "none",
+      stroke: "#000",
+      "stroke-width": 23,
+      "stroke-linecap": "round"
+    });
 
     this.cursive(this.slide_val);
   },
@@ -50,26 +61,130 @@ export default {
 
       var up_val = 0;
       var color_string = "";
+      var eyex = 0;
+      var eyey = 0;
+      var eyer = 0;
+      var eyer_max = 35;
+      var mouth_unit = 0;
+      var mouth_poz = 0;
 
       if (x >= 0 && x <= 25) {
         up_val = 0.5;
         color_string =
-          (255 - (x * 125) / 25).toFixed(0).toString() +
-          ",0," +
-          ((x * 125) / 25).toFixed(0).toString();
+          (255 - (x * 200) / 25).toFixed(0).toString() +
+          "," +
+          parseInt(x * 3 + 25) +
+          "," +
+          ((x * 200) / 25).toFixed(0).toString();
+        eyex = (x - 50) * 0.6;
+        eyey = (x - 50) * ((25 - x) * 0.05 + 0.6);
+        eyer = 20 + parseInt((15 / 25) * x);
+        mouth_unit = 25 - x;
+        mouth_poz = 1;
       } else if (x > 25 && x <= 50) {
         up_val = 0.5 - (x - 25) * 0.02;
+        color_string =
+          parseInt(100 - x) +
+          "," +
+          parseInt(100 + parseInt(x)) +
+          "," +
+          (200 + parseInt(x)).toString();
+        eyex = (x - 50) * 0.4;
+        eyey = (x - 50) * 0.4;
+        eyer = eyer_max;
+        mouth_unit = 50 - x;
+        mouth_poz = 2;
+      } else if (x > 50 && x <= 75) {
+        up_val = 0;
         color_string = "0,0,255";
+        eyex = 0;
+        eyey = 0;
+        eyer = eyer_max;
+        mouth_unit = 75 - x;
+        mouth_poz = 3;
       } else {
         up_val = 0;
         color_string = "0,0,255";
+        eyex = 0;
+        eyey = 0;
+        eyer = eyer_max;
+        mouth_unit = 100 - x;
+        mouth_poz = 4;
       }
+      // console.log(mouth_unit);
+      // m180,360q67,48 143,0
+      // m155,385q97,3 143,0
+      // m155,385q56.97902,3 84,0       1
+      //m155,416q56.97902,-59 84,0      2
+
+      //m155,416q56,-59 143,0           2
+      //m163,365q56,85 143,0            3
+      //m163,365q56,53 143,0
+      //m159,366q72.51333,38 146,0
+      //m167,364q72.51333,38 146,0      3
+      //m167,340q90.89,96 183,0         4
+
+      //m209,265q61.29033,111.19231 190,49.18121      5
+
+      var mouth_array = [4];
+      var mouth_coef = [4];
+      mouth_array[1] = [155, 416, 56, -59, 143, 0];
+      mouth_coef[1] = [0, -1.25, 0, 2.5, -1.6, 0];
+
+      mouth_array[2] = [167, 366, 72, 38, 146, 0];
+      mouth_coef[2] = [-0.48, 2, -0.64, -3.88, -0.125, 0];
+
+      mouth_array[3] = [167, 340, 90, 89, 183, 0];
+      mouth_coef[3] = [0, 1, -0.72, -2.32, -1.48, 0];
+
+      mouth_array[4] = [209, 265, 61, 111, 190, 49];
+      mouth_coef[4] = [-1.68, 3, 1.4, -0.6, -0.28, -1.96];
+
+      this.mouth.plot(
+        "m" +
+          parseInt(
+            mouth_array[mouth_poz][0] + mouth_coef[mouth_poz][0] * mouth_unit
+          ) +
+          "," +
+          parseInt(
+            mouth_array[mouth_poz][1] + mouth_coef[mouth_poz][1] * mouth_unit
+          ) +
+          "q" +
+          parseInt(
+            mouth_array[mouth_poz][2] + mouth_coef[mouth_poz][2] * mouth_unit
+          ) +
+          "," +
+          parseInt(
+            mouth_array[mouth_poz][3] + mouth_coef[mouth_poz][3] * mouth_unit
+          ) +
+          " " +
+          parseInt(
+            mouth_array[mouth_poz][4] + mouth_coef[mouth_poz][4] * mouth_unit
+          ) +
+          "," +
+          parseInt(
+            mouth_array[mouth_poz][5] + mouth_coef[mouth_poz][5] * mouth_unit
+          )
+      );
+
+      console.log(this.mouth.plot());
       s1.update(0, "rgb(" + color_string + ")");
       s2.update(up_val, "#f1da49", 1);
 
       this.radial.from(0.5, 0).to(0.5, 1);
+      // .radius(1.2);
 
       this.circle1.fill(this.radial);
+      this.eye1.attr({
+        r: eyer,
+        cx: 110 + 35 + eyex,
+        cy: 200 + eyer_max - eyey
+      });
+      this.eye2.attr({
+        r: eyer,
+        cx: 320 + 35 + 2 * eyex,
+        cy: 200 + eyer_max - eyey
+      });
     }
   }
 };
