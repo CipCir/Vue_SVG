@@ -1,22 +1,28 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from "vue";
+import Router from "vue-router";
 
-import Cip from '@/components/cip'
-import Ramo from '@/components/ramo'
+import Cip from "@/components/cip";
+import Ramo from "@/components/ramo";
+import slider from "@/components/slider";
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'Ramo',
+      path: "/",
+      name: "Ramo",
       component: Ramo
     },
     {
-      path: '/cip',
-      name: 'Cip',
+      path: "/cip",
+      name: "Cip",
       component: Cip
+    },
+    {
+      path: "/slider",
+      name: "slider",
+      component: slider
     }
   ]
-})
+});
