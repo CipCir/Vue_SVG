@@ -27,7 +27,7 @@ import SVG from "svg.js";
 export default {
   data() {
     return {
-      slide_val: 50,
+      slide_val: 0,
       nr_interval_points: 25,
       nr_elem: 5,
       canvas: "",
@@ -35,6 +35,7 @@ export default {
       eye1: "",
       eye2: "",
       mouth: "",
+      linear: "",
       radial: "",
       mouth_string: [
         "m160,404q46.66667,-13 75,0",
@@ -46,25 +47,38 @@ export default {
       mouth_array: [],
       mouth_coef: [],
       yellow_hex: "#f1da49",
-      eyeb_path1: [
-        "",
-        "m91.6875,212.25q12,-46.51563 57,-38.88416",
+      eyeb1_string: [
+        "m41,284q60.39216,35.92308 140,33.15976",
+        "m95,228q12,-46 54,-38",
         "m103,202q26.13861,-34.78378 72,-14.10153",
-        "",
-        ""
+        "m165,222q39,-195 80,0", //"m163,219q36,-136 72,0",
+        "m204,139q102,-101 98,37" //"m202,134.10798q103.03448,-92.55128 95.92865,33.89202"
       ],
-      eyeb_path2: [
-        "",
-        "m407,210.71424q-11.45395,-46.02454 -54.40625,-38.47364",
+      eyeb2_string: [
+        "m375,283.32143q-68.58823,36.99998 -158.99999,34.15383",
+        "m402,228q-12,-46 -54,-38",
         "m396,202.90678q-25.77557,-34.78379 -71,-14.10153",
-        "",
-        ""
-      ]
+        "m399,220q-41,-195 -80,0", //"m320,218q36,-136 72,0",
+        "m437,218q3,-137 -96,-30" //"m332.80646,186.61096q103.03448,-92.55128 95.92865,33.89202"
+      ],
+      eyeb1_array: [],
+      eyeb1_coef: [],
+      eyeb2_array: [],
+      eyeb2_coef: [],
+      pinky1: "",
+      pinky2: "",
+      eye_x_array: [115, 130, 145, 0, 0],
+      eye_y_array: [327.5, 250, 235, 235, 0],
+      eye_dif: 0
     };
   },
+  //M275,441 Q377,340 373,478
+  //M373,475 Q376,338 277,445
   mounted() {
     this.canvas = SVG("drawing").viewbox(0, 0, 500, 500);
     this.circle1 = this.canvas.circle(500).move(0, 0);
+    this.pinky1 = this.canvas.circle(10);
+    this.pinky2 = this.canvas.circle(10);
     this.eye1 = this.canvas.circle(70).move(110, 200);
     this.eye2 = this.canvas.circle(70).move(320, 200);
     this.mouth = this.canvas.path("m180,360q67,48 143,0").attr({
@@ -97,12 +111,30 @@ export default {
   methods: {
     init_setup() {
       for (var i = 0; i < this.nr_elem; i++) {
+        //mouth
         this.mouth_array[i] = this.create_arrays(this.mouth_string[i]);
+        //eyeb1
+        this.eyeb1_array[i] = this.create_arrays(this.eyeb1_string[i]);
+        //eyeb2
+        this.eyeb2_array[i] = this.create_arrays(this.eyeb2_string[i]);
       }
       for (var i = 0; i < this.nr_elem - 1; i++) {
+        //mouth
         this.mouth_coef[i + 1] = this.create_coef(
           this.mouth_array[i],
           this.mouth_array[i + 1],
+          this.nr_interval_points
+        );
+        //eyeb1
+        this.eyeb1_coef[i + 1] = this.create_coef(
+          this.eyeb1_array[i],
+          this.eyeb1_array[i + 1],
+          this.nr_interval_points
+        );
+        //eyeb2
+        this.eyeb2_coef[i + 1] = this.create_coef(
+          this.eyeb2_array[i],
+          this.eyeb2_array[i + 1],
           this.nr_interval_points
         );
       }
@@ -128,41 +160,109 @@ export default {
       }
       return rez;
     },
-    create_plot(x) {
-      var mouth_poz = this.return_unit_pos(x)[0];
-      var mouth_unit = this.return_unit_pos(x)[1];
+    create_plot(x, type) {
+      var this_poz = this.return_unit_pos(x)[0];
+      var this_unit = this.return_unit_pos(x)[1];
       var rez;
-      rez =
-        "m" +
-        parseInt(
-          this.mouth_array[mouth_poz][0] +
-            this.mouth_coef[mouth_poz][0] * mouth_unit
-        ) +
-        "," +
-        parseInt(
-          this.mouth_array[mouth_poz][1] +
-            this.mouth_coef[mouth_poz][1] * mouth_unit
-        ) +
-        "q" +
-        parseInt(
-          this.mouth_array[mouth_poz][2] +
-            this.mouth_coef[mouth_poz][2] * mouth_unit
-        ) +
-        "," +
-        parseInt(
-          this.mouth_array[mouth_poz][3] +
-            this.mouth_coef[mouth_poz][3] * mouth_unit
-        ) +
-        " " +
-        parseInt(
-          this.mouth_array[mouth_poz][4] +
-            this.mouth_coef[mouth_poz][4] * mouth_unit
-        ) +
-        "," +
-        parseInt(
-          this.mouth_array[mouth_poz][5] +
-            this.mouth_coef[mouth_poz][5] * mouth_unit
-        );
+      if (type == "mouth") {
+        rez =
+          "m" +
+          parseInt(
+            this.mouth_array[this_poz][0] +
+              this.mouth_coef[this_poz][0] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.mouth_array[this_poz][1] +
+              this.mouth_coef[this_poz][1] * this_unit
+          ) +
+          "q" +
+          parseInt(
+            this.mouth_array[this_poz][2] +
+              this.mouth_coef[this_poz][2] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.mouth_array[this_poz][3] +
+              this.mouth_coef[this_poz][3] * this_unit
+          ) +
+          " " +
+          parseInt(
+            this.mouth_array[this_poz][4] +
+              this.mouth_coef[this_poz][4] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.mouth_array[this_poz][5] +
+              this.mouth_coef[this_poz][5] * this_unit
+          );
+      }
+      if (type == "eyeb1") {
+        rez =
+          "m" +
+          parseInt(
+            this.eyeb1_array[this_poz][0] +
+              this.eyeb1_coef[this_poz][0] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.eyeb1_array[this_poz][1] +
+              this.eyeb1_coef[this_poz][1] * this_unit
+          ) +
+          "q" +
+          parseInt(
+            this.eyeb1_array[this_poz][2] +
+              this.eyeb1_coef[this_poz][2] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.eyeb1_array[this_poz][3] +
+              this.eyeb1_coef[this_poz][3] * this_unit
+          ) +
+          " " +
+          parseInt(
+            this.eyeb1_array[this_poz][4] +
+              this.eyeb1_coef[this_poz][4] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.eyeb1_array[this_poz][5] +
+              this.eyeb1_coef[this_poz][5] * this_unit
+          );
+      }
+      if (type == "eyeb2") {
+        rez =
+          "m" +
+          parseInt(
+            this.eyeb2_array[this_poz][0] +
+              this.eyeb2_coef[this_poz][0] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.eyeb2_array[this_poz][1] +
+              this.eyeb2_coef[this_poz][1] * this_unit
+          ) +
+          "q" +
+          parseInt(
+            this.eyeb2_array[this_poz][2] +
+              this.eyeb2_coef[this_poz][2] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.eyeb2_array[this_poz][3] +
+              this.eyeb2_coef[this_poz][3] * this_unit
+          ) +
+          " " +
+          parseInt(
+            this.eyeb2_array[this_poz][4] +
+              this.eyeb2_coef[this_poz][4] * this_unit
+          ) +
+          "," +
+          parseInt(
+            this.eyeb2_array[this_poz][5] +
+              this.eyeb2_coef[this_poz][5] * this_unit
+          );
+      }
       return rez;
     },
     return_unit_pos(x) {
@@ -207,7 +307,16 @@ export default {
           "," +
           (200 + parseInt(y)).toString();
       }
-
+      var temp = rez.split(",");
+      for (var i = 0; i < temp.length; i++) {
+        if (temp[i] < 0) {
+          temp[i] = 0;
+        }
+        if (temp[i] > 255) {
+          temp[i] = 255;
+        }
+      }
+      rez = temp.join(",");
       return rez;
     },
     return_up_val(x) {
@@ -236,7 +345,7 @@ export default {
         down_2 = 0,
         eyex = 0,
         eyey = 0,
-        eyer = eyer_max;
+        eyer = 0;
 
       if (this.nr_elem == 5) {
         down_1 = 1;
@@ -244,41 +353,129 @@ export default {
       }
 
       if (this.return_unit_pos(x)[0] == down_1) {
-        eyex = (x - 50) * 0.6;
-        eyey = (x - 50) * ((25 - x) * 0.05 + 0.6);
-        eyer = 20 + parseInt((15 / 25) * x);
+        // eyex = (x - 50) * 0.6;
+        // eyey = (x - 50) * ((this.nr_interval_points - x) * 0.05 + 0.6);
+        this.eye_dif =
+          ((320 - 110 - 100) / this.nr_interval_points) *
+          this.return_unit_pos(x)[1];
+        eyex =
+          ((this.eye_x_array[this.return_unit_pos(x)[0]] -
+            this.eye_x_array[this.return_unit_pos(x)[0] - 1]) /
+            this.nr_interval_points) *
+          this.return_unit_pos(x)[1];
+
+        eyey =
+          ((this.eye_y_array[this.return_unit_pos(x)[0]] -
+            this.eye_y_array[this.return_unit_pos(x)[0] - 1]) /
+            this.nr_interval_points) *
+            this.return_unit_pos(x)[1] +
+          2 *
+            (this.eye_y_array[this.return_unit_pos(x)[0] + 1] -
+              this.eye_y_array[this.return_unit_pos(x)[0]]);
+        eyer = 20 + parseInt((15 / this.nr_interval_points) * x);
       }
       if (this.return_unit_pos(x)[0] == down_2) {
-        eyex = (x - 50) * 0.4;
-        eyey = (x - 50) * 0.4;
+        // eyex = (x - 50) * 0.4;
+        //eyey = (x - 50) * 0.4;
+        this.eye_dif =
+          (20 / this.nr_interval_points) * this.return_unit_pos(x)[1];
+        eyex =
+          ((this.eye_x_array[this.return_unit_pos(x)[0]] -
+            this.eye_x_array[this.return_unit_pos(x)[0] - 1] -
+            10) /
+            this.nr_interval_points) *
+          this.return_unit_pos(x)[1];
+        eyey =
+          ((this.eye_y_array[this.return_unit_pos(x)[0]] -
+            this.eye_y_array[this.return_unit_pos(x)[0] - 1]) /
+            this.nr_interval_points) *
+            this.return_unit_pos(x)[1] +
+          (this.eye_y_array[this.return_unit_pos(x)[0] + 1] -
+            this.eye_y_array[this.return_unit_pos(x)[0]]);
         eyer = eyer_max;
-        // console.log("eyer_max", eyer_max, eyer);
       }
+
       return [eyex, eyey, eyer];
+    },
+    return_pinky(x) {
+      var rez;
+
+      if (x < this.nr_interval_points * (this.nr_elem - 2)) {
+        rez = 0;
+      } else {
+        rez =
+          (x - this.nr_interval_points * (this.nr_elem - 2)) /
+            this.nr_interval_points -
+          0.25;
+        if (rez < 0) rez = 0;
+      }
+
+      return [rez * 100, rez];
     },
     cursive(x) {
       var s1,
         s2,
+        s3,
+        s4,
         eyer_max = 35;
 
-      this.radial = this.canvas.gradient("linear", function(stop) {
+      this.linear = this.canvas.gradient("linear", function(stop) {
         s1 = stop.at(0, "rgb(255,0,0)");
         s2 = stop.at(0.5, this.yellow_hex);
       });
-      this.mouth.plot(this.create_plot(x));
+
+      this.radial = this.canvas.gradient("radial", function(stop) {
+        s3 = stop.at(0, "#ff4700");
+        s4 = stop.at(1, "yellow");
+      });
+      s4.update(0.9, this.yellow_hex);
+
+      this.mouth.plot(this.create_plot(x, "mouth"));
+      this.eyeb1.plot(this.create_plot(x, "eyeb1"));
+      this.eyeb2.plot(this.create_plot(x, "eyeb2"));
+
       s1.update(0, "rgb(" + this.return_rgb(x) + ")");
       s2.update(this.return_up_val(x), this.yellow_hex, 1);
-      this.radial.from(0.5, 0).to(0.5, 1);
-      this.circle1.fill(this.radial);
+      this.linear.from(0.5, 0).to(0.5, 1);
+      this.circle1.fill(this.linear);
+      // console.log(this.calc_eyes(x, eyer_max, this.eye_dif));
       this.eye1.attr({
-        r: this.calc_eyes(x, eyer_max)[2],
-        cx: 110 + 35 + this.calc_eyes(x, eyer_max)[0],
-        cy: 200 + eyer_max - this.calc_eyes(x, eyer_max)[1]
+        r: this.calc_eyes(x, eyer_max, this.eye_dif)[2],
+        cx:
+          110 +
+          this.calc_eyes(x, eyer_max, this.eye_dif)[2] +
+          this.calc_eyes(x, eyer_max, this.eye_dif)[0],
+        cy:
+          200 +
+          this.calc_eyes(x, eyer_max, this.eye_dif)[2] -
+          this.calc_eyes(x, eyer_max, this.eye_dif)[1]
       });
       this.eye2.attr({
-        r: this.calc_eyes(x, eyer_max)[2],
-        cx: 320 + 35 + 2 * this.calc_eyes(x, eyer_max)[0],
-        cy: 200 + eyer_max - this.calc_eyes(x, eyer_max)[1]
+        r: this.calc_eyes(x, eyer_max, this.eye_dif)[2],
+        cx:
+          320 +
+          this.calc_eyes(x, eyer_max, this.eye_dif)[2] +
+          this.calc_eyes(x, eyer_max, this.eye_dif)[0] -
+          this.eye_dif,
+        cy:
+          200 +
+          this.calc_eyes(x, eyer_max, this.eye_dif)[2] -
+          this.calc_eyes(x, eyer_max, this.eye_dif)[1]
+      });
+
+      this.pinky1.attr({
+        r: this.return_pinky(x)[0],
+        cx: this.mouth.bbox().x,
+        cy: this.mouth.bbox().y,
+        fill: this.radial,
+        opacity: this.return_pinky(x)[1]
+      });
+      this.pinky2.attr({
+        r: this.return_pinky(x)[0],
+        cx: this.mouth.bbox().x2,
+        cy: this.mouth.bbox().y2 - this.mouth.bbox().h / 2,
+        fill: this.radial,
+        opacity: this.return_pinky(x)[1]
       });
     }
   }
