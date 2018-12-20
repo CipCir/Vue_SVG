@@ -4,6 +4,7 @@ import Router from "vue-router";
 import Cip from "@/components/cip";
 import Ramo from "@/components/ramo";
 import slider from "@/components/slider";
+import animate from "@/components/animate";
 
 Vue.use(Router);
 
@@ -23,6 +24,11 @@ export default new Router({
       path: "/slider",
       name: "slider",
       component: slider
+    },
+    {
+      path: "/animate",
+      name: "animate",
+      component: animate
     }
   ]
 });

@@ -11,8 +11,11 @@
             <router-link class="link" to="/slider">Slider</router-link>
           </li>
           <li>
-            <router-link class="link" to="/cip">Cip</router-link>
+            <router-link class="link" to="/animate">Animate</router-link>
           </li>
+          <!-- <li>
+            <router-link class="link" to="/cip">Cip</router-link>
+          </li>-->
         </ul>
       </div>
     </nav>

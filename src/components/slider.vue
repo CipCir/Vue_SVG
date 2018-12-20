@@ -2,8 +2,8 @@
   <div id="PageContainer">
     <svg
       id="drawing"
-      width="200px"
-      height="200px"
+      width="100%"
+      height="100%"
       viewBox="0 0 500 500"
       style="border:1px solid black;"
     ></svg>
@@ -27,7 +27,7 @@ import SVG from "svg.js";
 export default {
   data() {
     return {
-      slide_val: 0,
+      slide_val: 50,
       nr_interval_points: 25,
       nr_elem: 5,
       canvas: "",
@@ -482,6 +482,17 @@ export default {
 };
 </script>
 <style scoped>
+@media only screen and (max-width: 400) {
+  #PageContainer {
+    width: 100%;
+    height: auto;
+    max-height: 60vh;
+  }
+}
+
+#PageContainer {
+  height: 200px;
+}
 #output {
   border: 1px solid black;
   width: 60px;
